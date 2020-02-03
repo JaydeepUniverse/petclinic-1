@@ -25,10 +25,10 @@
      - provision in the same vpc in which kubernetes is provisioned and 
      - enable public ip assignment
      
-## Install Helm on Administration VM
+## Helm: Install on Administration VM
  - https://github.com/JaydeepUniverse/automation/blob/master/helm.yaml
 
-## Install Jenkins on EKS using Helm
+## Jenkins: Install on EKS using Helm
  - Create storageClass.yaml
  - Create persistentVolumeClaim.yaml
  - Get jenkins helm chart values
@@ -46,7 +46,7 @@
  - Install
    - `helm install myjenkins stable/jenkins --values /tmp/jenkins.values`
  
-## Install Jfrog Artifactory on EKS
+## Jfrog Artifactory: Install on EKS
  - Create S3 bucket for storage purpose ***<< Confirm this functionality***
  - First add jfrog required repository
    - `helm repo add jfrog https://charts.jfrog.io`
@@ -86,7 +86,7 @@
  - Install
    - `helm install myartifactory  jfrog/artifactory --values /tmp/artifactory.values`
 
-## Install Spinnaker on EKS
+## Spinnaker: Install on EKS
  - Straight forward steps from https://www.spinnaker.io/setup/install/
  - Install Halyard
    - provide the username by which want to run halyard/spinnaker service
@@ -101,10 +101,21 @@
      - **Make sure to add `--bucket s3BucketName` in the command else random name bucket will created**
  - Deploy and Connect
  
-## Configure Spinnaker to Expose Publicly
+## Spinnaker: Configure to Expose Publicly
  - Straight forward steps from https://docs.armory.io/spinnaker/exposing_spinnaker/
  
-## Configure Spinnaker on HTTPS
+## Spinnaker: Configure on HTTPS
  - Straight forward steps from	https://www.spinnaker.io/setup/security/ssl/#server-terminated-ssl
  - **Make sure to increase --liveness-probe-initial-delay-seconds to 600s in the command**  
    - `hal config deploy edit --liveness-probe-enabled true --liveness-probe-initial-delay-seconds 600`
+   
+## Jenkins: Create Multibranch CI pipeline
+ - Create credentials to authenticate to git repository
+   - Jenkins > Credentials > System > Global credentials > Add credentials
+     - Scope: Global
+     - Username: Username of the git repository
+     - Password: Password of git repository
+     - ID: ID(name) to be used to select in job configuration
+     - Description: description
+ - Jenkins > new job > multibranch type > git > url, credentials > save
+ - This job will automatically fetch all branch names from git and create separate jobs for each branch wise
