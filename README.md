@@ -40,7 +40,7 @@
    - **Make sure to run last optional command as well with 60s value**
  - Choose a Storage Service
    - S3
-     - **Make sure to add `--bucket s3BucketName` in the command else random name bucket will created
+     - **Make sure to add `--bucket s3BucketName` in the command else random name bucket will created**
  - Deploy and Connect
  
 ## Configure Spinnaker to Expose Publicly
@@ -49,7 +49,7 @@
 ## Configure Spinnaker on HTTPS
  - Straight forward steps from	https://www.spinnaker.io/setup/security/ssl/#server-terminated-ssl
  - **Make sure to increase --liveness-probe-initial-delay-seconds to 600s in the command**  
-   `hal config deploy edit --liveness-probe-enabled true --liveness-probe-initial-delay-seconds 600`
+   - `hal config deploy edit --liveness-probe-enabled true --liveness-probe-initial-delay-seconds 600`
 
 
 ## Install Jenkins on EKS using Helm
