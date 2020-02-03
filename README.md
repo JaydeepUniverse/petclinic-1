@@ -28,7 +28,8 @@
 ## Install Helm on Administration VM
  - https://github.com/JaydeepUniverse/automation/blob/master/helm.yaml
 
-## Install Spinnaker on EKS - 	https://www.spinnaker.io/setup/install/
+## Install Spinnaker on EKS
+ - Straight forward steps from https://www.spinnaker.io/setup/install/
  - Install Halyard
    - provide the username by which want to run halyard/spinnaker service
  - Choose Cloud Provider > Kubernetes(Manifest Based)
@@ -48,7 +49,7 @@
 ## Configure Spinnaker on HTTPS
  - Straight forward steps from	https://www.spinnaker.io/setup/security/ssl/#server-terminated-ssl
  - **Make sure to increase --liveness-probe-initial-delay-seconds to 600s in the command**  
-		 `hal config deploy edit --liveness-probe-enabled true --liveness-probe-initial-delay-seconds 600`
+   `hal config deploy edit --liveness-probe-enabled true --liveness-probe-initial-delay-seconds 600`
 
 
 ## Install Jenkins on EKS using Helm
