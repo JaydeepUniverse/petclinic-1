@@ -24,3 +24,21 @@
    - Straight forward EC2 instance provisioning steps - **just make sure that**
      - provision in the same vpc in which kubernetes is provisioned and 
      - enable public ip assignment
+     
+## Install Jenkins on EKS using Helm
+ - Create storageClass.yaml
+ - Create persistentVolumeClaim.yaml
+ - Get jenkins helm chart values
+   - `helm inspect values stable/jenkins > /tmp/jenkinsvalues`
+ - Append this file with below parameters
+   ```
+   namespaceOverride: devops-tools
+   master
+    serviceType: LoadBalancer
+   slaveKubernetesNamespace: devops-tools
+   existingClaim: jenkins-pvc
+   storageClass: jenkins-storage-class
+   adminPassword: admin
+   ```
+ - Install
+   - `helm install myjenkins stable/jenkins --values /tmp/jenkins.values`
