@@ -140,3 +140,21 @@
     - **If the password does not work then provide token**
   - Then in spinnaker application created above, do configuration according to https://www.spinnaker.io/guides/user/pipeline/triggers/jenkins/
   - For the properties file: provide the name "build_properties.yaml", this is from jenkinsfile
+  
+  
+## CICD covered features
+- Versioning
+  - pom.xml > properties > `<version.number>${env.BUILD_NUMBER}</version.number>` provided which is docker image tag and same has been referenced further in fabric8 > docker-maven-plugin > configurations
+  - jenkinsfile creates build_properties.yaml file which forward the same build_number to spinnaker 
+  ```
+  stage("Create spinnaker properties file"){
+    steps{
+      sh """
+        echo "---
+        BUILD_NUMBER: '${BUILD_NUMBER}'
+        " > build_properties.yaml
+      """
+    }
+  }
+  ```
+  - spinnaker > application > pipeline > deployment stage > deployment.yaml file>  container section > `${trigger["properties"]["BUILD_NUMBER"]}` provided
