@@ -119,3 +119,18 @@
      - Description: description
  - Jenkins > new job > multibranch type > git > url, credentials > save
  - This job will automatically fetch all branch names from git and create separate jobs for each branch wise
+ 
+ ## Spinnaker: Create CD pipeline
+ - Before creating spinnaker pipeline, first create kubernetes secret to pull the image from private docker registry
+   - Create under same namespace same as other resources created
+   - Refer https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+ - Spinnaker > applications > create new application
+ - Spinnaker > projects > create new project
+   - select the application created above, **if application name is not visible then refresh the page and try**
+ - go to created application > pipelines > add stage
+   - type: deploy (manifest)
+   - stage name
+   - account name: drop down would show account name while installing spinnaker, select the one
+     - Adding an Account from https://www.spinnaker.io/setup/install/providers/kubernetes-v2/#adding-an-account
+   - manifest configuration: copy and paste namespace.yaml file from this project
+ - Similarly create 2 more stages for service.yaml, deployment.yaml
