@@ -88,9 +88,13 @@
        limits:
          memory: "500Mi"
          cpu: "250m"
-    ``` 
-    ***Confirm below functionality***
-    ```
+  ```
+  
+  ```diff
+  - confirm below functionality
+  ```
+  
+  ```
     awsS3V3:
       identity: awsAccessKey
       credential: awsSecretKey
