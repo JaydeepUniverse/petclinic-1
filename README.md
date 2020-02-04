@@ -141,9 +141,18 @@
   - Then in spinnaker application created above, do configuration according to https://www.spinnaker.io/guides/user/pipeline/triggers/jenkins/
   - For the properties file: provide the name "build_properties.yaml", this is from jenkinsfile
   
-  
+## Git-Jenkins: Integration
+- Azure Git-Jenkins integration **(here azure git mentioned, later mention for github/gitlab configurations)**
+  - azure devops project settings > general > service hooks > add >
+    - trigger: code pushed
+    - repository: select repo name
+    - next
+    - action: trigger git build
+    - jenkins base url, username, user api token - here provide user's token
+    - Test and finish
+
 ## CICD covered features
-- Versioning
+- Versioning: docker image
   - pom.xml > properties > `<version.number>${env.BUILD_NUMBER}</version.number>` provided which is docker image tag and same has been referenced further in fabric8 > docker-maven-plugin > configurations
   - jenkinsfile creates build_properties.yaml file which forward the same build_number to spinnaker 
   ```
@@ -158,3 +167,4 @@
   }
   ```
   - spinnaker > application > pipeline > deployment stage > deployment.yaml file>  container section > `${trigger["properties"]["BUILD_NUMBER"]}` provided
+- Versioning: artifact 
