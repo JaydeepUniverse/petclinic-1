@@ -221,6 +221,10 @@ awsS3V3:
   ```
   - spinnaker > application > pipeline > deployment stage > petclinicDeployment.yaml file>  container section > `${trigger["properties"]["BUILD_NUMBER"]}` provided
 - Versioning: artifact
+  - In pom.xml changed artifact's version tag as `<version>${env.BUILD_NUMBER}-SNAPSHOT</version>`
+  - In Jenkinsfile added step to change the same version in Dockerfile to build newer artifact version 
+    `sh "sed -i s/spring-petclinic-*.*-SNAPSHOT.jar/spring-petclinic-${BUILD_NUMBER}-SNAPSHOT.jar/g ${WORKSPACE}/Dockerfile"`
+
 - Maven-settings.xml file
   - For docker retistry, provide first `id` tag as entire url of jfrog artifactory ex. jforgArtifactoryURL:80
   - For java artifacts just keep the `id` tag as `jfrogArtifactory`
