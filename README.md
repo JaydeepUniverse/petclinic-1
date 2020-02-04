@@ -134,3 +134,9 @@
      - Adding an Account from https://www.spinnaker.io/setup/install/providers/kubernetes-v2/#adding-an-account
    - manifest configuration: copy and paste namespace.yaml file from this project
  - Similarly create 2 more stages for service.yaml, deployment.yaml
+ 
+ ## Jenkins-Spinnaker: Integration
+  - Refer https://www.spinnaker.io/setup/ci/jenkins/#add-your-jenkins-master
+    - **If the password does not work then provide token**
+  - Then in spinnaker application created above, do configuration according to https://www.spinnaker.io/guides/user/pipeline/triggers/jenkins/
+  - For the properties file: provide the name "build_properties.yaml", this is from jenkinsfile
