@@ -154,6 +154,33 @@
     - jenkins base url, username, user api token - here provide user's token
     - Test and finish
 
+## AWS Custom AMI: Create custom AMI for docker image pull from private registry and EFS mount
+- After Jfrog Artifactory and EFS created
+- SSH into one of worker nodes
+- in `/etc/docker/daemon.json` file add `"insecure-registries":["http://jfrogArtifactoryURL:80"]` as below
+```
+{
+  "bridge": "none",
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "10"
+  },
+  "live-restore": true,
+  "max-concurrent-downloads": 10,
+  "insecure-registries":["http://jfrogArtifactoryURL:80"]
+}
+```
+- Mount EFS permanently as per https://docs.aws.amazon.com/efs/latest/ug/mount-fs-auto-mount-onreboot.html
+- AWS > EC2 > select this worker node > actions > create image
+- Change launch template configuration
+  - EC2 > Launch templates > select the one which is used in Auto Scaler configurations of EKS > actions > modify template > select AMI new one created above from My AMI section > Create template version 
+- Select default version
+  - EC2 > Launch templates > select the one which is used in Auto Scaler configurations of EKS > actions > set default version > select latest created > set default version
+- Change version in Auto scaling group
+  - EC2 > Auto scaling group > select the one which is used in Auto Scaler configurations of EKS > actions > edit > change launch template version > select latest > save
+- Delete all EC2 instances created as part of EKS worker nodes and now let auto scaler create new nodes as per custom AMI
+
 ## CICD covered features
 - Versioning: docker image
   - pom.xml > properties > `<version.number>${env.BUILD_NUMBER}</version.number>` provided which is docker image tag and same has been referenced further in fabric8 > docker-maven-plugin > configurations
