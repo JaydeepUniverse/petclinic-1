@@ -51,7 +51,11 @@
 
 ## Jenkins: Configurations
 - Manage jenkins > cloud > kubernetes > 
-  - jenkins url: http://k8sServiceName.namespaceOfJenkins:8080 ex. `http://myjenkins.devops-tools:8080` **verify this and change accordingly**
+  - jenkins url: http://k8sServiceName.namespaceOfJenkins:8080 ex. `http://myjenkins.devops-tools:8080` 
+  ```html
+<p style="background-color:Red;">verify this and change accordingly</p>
+  ```
+  **verify this and change accordingly**
   - jenkins tunnel: k8sServiceName-agent.namespaceOfJenkins:50000 ex. `myjenkins-agent.devops-tools:50000` **verify this and change accordingly**
   - rest all parameters as it is and save
 
