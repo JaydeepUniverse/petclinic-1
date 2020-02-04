@@ -68,7 +68,7 @@
  - Get artifactory helm chart values
    - `helm inspect values jfrog/artifactory > /tmp/artifactory.values`
  - Append this file with below parameters
-   ```
+```
    artifactory:
      resources: {}
        requests:
@@ -88,20 +88,20 @@
        limits:
          memory: "500Mi"
          cpu: "250m"
-  ```
+```
   
-  ```diff
-  - confirm below functionality
-  ```
+```diff
+- confirm below functionality
+```
   
-  ```
-    awsS3V3:
+```
+awsS3V3:
       identity: awsAccessKey
       credential: awsSecretKey
       region: ap-southeast-1
       bucketName: s3BucketName
       endpoint: s3.ap-southeast-1.amazonaws.com
-   ```
+```
  - Install
    - `helm install myartifactory  jfrog/artifactory --values /tmp/artifactory.values`
 
