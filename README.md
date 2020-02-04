@@ -19,6 +19,9 @@
      - Cluster Autoscaler Node group Considerations
      - Deploy the Cluster Autoscaler 
      
+## EFS
+- AWS > select region same as EKS > EFS > Create > VPC of the same as EKS > select **private subnets** > Tags > rest all configurations as it is > create
+
 ## Administration VM AWS EC2 Ubuntu
  - How to provision using console
    - Straight forward EC2 instance provisioning steps - **just make sure that**
