@@ -159,11 +159,12 @@ awsS3V3:
     - **If the password does not work then provide token**
   - Then in spinnaker application created above, do configuration according to https://www.spinnaker.io/guides/user/pipeline/triggers/jenkins/
   - For the properties file: provide the name "build_properties.yaml", this is from jenkinsfile
-    ```post {
-               always {
-            archiveArtifacts artifacts: 'build_properties.yaml', fingerprint: true
-                }
-        }
+    ```
+    post {
+      always {
+        archiveArtifacts artifacts: 'build_properties.yaml', fingerprint: true
+      }
+    }
     ```
 
 ## Git-Jenkins: Integration
