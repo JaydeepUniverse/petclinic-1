@@ -17,41 +17,41 @@
    - Launch a managed node group
    - Create Cluster Autoscaler for auto VMs provisioning - https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html
      - Cluster Autoscaler Node group Considerations
-     - Deploy the Cluster Autoscaler 
-     
+     - Deploy the Cluster Autoscaler
+
 ## EFS
 - AWS > select region same as EKS > EFS > Create > VPC of the same as EKS > select **private subnets** > Tags > rest all configurations as it is > create
 
 ## Administration VM AWS EC2 Ubuntu
  - How to provision using console
    - Straight forward EC2 instance provisioning steps - **just make sure that**
-     - provision in the same vpc in which kubernetes is provisioned and 
+     - provision in the same vpc in which kubernetes is provisioned and
      - enable public ip assignment
-     
+
 ## Helm: Install on Administration VM
  - https://github.com/JaydeepUniverse/automation/blob/master/helm.yaml
 
 ## Jenkins: Install on EKS using Helm
- - Create storageClass.yaml
- - Create persistentVolumeClaim.yaml
+ - Create jenkinsPersistentVolumeClaim.yaml
+ - Create jenkinsStorageClass.yaml
  - Get jenkins helm chart values
    - `helm inspect values stable/jenkins > /tmp/jenkins.values`
  - Append this file with below parameters
    ```
-   namespaceOverride: devops-tools
+   namespaceOverride: jenkins
    master
     serviceType: LoadBalancer
-   slaveKubernetesNamespace: devops-tools
-   existingClaim: jenkins-pvc
-   storageClass: jenkins-storage-class
+   slaveKubernetesNamespace: jenkins
+   existingClaim: jenkins
+   storageClass: jenkins
    adminPassword: admin
    ```
  - Install
    - `helm install myjenkins stable/jenkins --values /tmp/jenkins.values`
 
 ## Jenkins: Configurations
-- Manage jenkins > cloud > kubernetes > 
-  - jenkins url: http://k8sServiceName.namespaceOfJenkins:8080 ex. `http://myjenkins.devops-tools:8080` 
+- Manage jenkins > cloud > kubernetes >
+  - jenkins url: http://k8sServiceName.namespaceOfJenkins:8080 ex. `http://myjenkins.devops-tools:8080`
   ```diff
   - verify this and change accordingly
   ```
@@ -89,11 +89,11 @@
          memory: "500Mi"
          cpu: "250m"
 ```
-  
+
 ```diff
 - confirm below functionality
 ```
-  
+
 ```
 awsS3V3:
       identity: awsAccessKey
@@ -119,15 +119,15 @@ awsS3V3:
    - S3
      - **Make sure to add `--bucket s3BucketName` in the command else random name bucket will created**
  - Deploy and Connect
- 
+
 ## Spinnaker: Configure to Expose Publicly
  - Straight forward steps from https://docs.armory.io/spinnaker/exposing_spinnaker/
- 
+
 ## Spinnaker: Configure on HTTPS
- - Straight forward steps from	https://www.spinnaker.io/setup/security/ssl/#server-terminated-ssl
- - **Make sure to increase --liveness-probe-initial-delay-seconds to 600s in the command**  
+ - Straight forward steps from  https://www.spinnaker.io/setup/security/ssl/#server-terminated-ssl
+ - **Make sure to increase --liveness-probe-initial-delay-seconds to 600s in the command**
    - `hal config deploy edit --liveness-probe-enabled true --liveness-probe-initial-delay-seconds 600`
-   
+
 ## Jenkins: Create Multibranch CI pipeline
  - Create credentials to authenticate to git repository
    - Jenkins > Credentials > System > Global credentials > Add credentials
@@ -138,10 +138,10 @@ awsS3V3:
      - Description: description
  - Jenkins > new job > multibranch type > git > url, credentials > save
  - This job will automatically fetch all branch names from git and create separate jobs for each branch wise
- 
+
  ## Spinnaker: Create CD pipeline
  - Before creating spinnaker pipeline, first create kubernetes secret to pull the image from private docker registry
-   - Create under same namespace same as other resources created
+   - Create under same namespace same as other resources created and **name the secret as artifactoryCred**
    - Refer https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
  - Spinnaker > applications > create new application
  - Spinnaker > projects > create new project
@@ -151,10 +151,10 @@ awsS3V3:
    - stage name
    - account name: drop down would show account name while installing spinnaker, select the one
      - Adding an Account from https://www.spinnaker.io/setup/install/providers/kubernetes-v2/#adding-an-account
-   - manifest configuration: copy and paste namespace.yaml file from this project
- - Similarly create 2 more stages for service.yaml, deployment.yaml
- 
- ## Jenkins-Spinnaker: Integration
+   - manifest configuration: copy and paste petclinicNamespace.yaml file from this project
+ - Similarly create 2 more stages for petclinicService.yaml, petclinicService.yaml
+
+## Jenkins-Spinnaker: Integration
   - Refer https://www.spinnaker.io/setup/ci/jenkins/#add-your-jenkins-master
     - **If the password does not work then provide token**
   - Then in spinnaker application created above, do configuration according to https://www.spinnaker.io/guides/user/pipeline/triggers/jenkins/
@@ -197,17 +197,17 @@ awsS3V3:
 - Mount EFS permanently as per https://docs.aws.amazon.com/efs/latest/ug/mount-fs-auto-mount-onreboot.html
 - AWS > EC2 > select this worker node > actions > create image
 - Change launch template configuration
-  - EC2 > Launch templates > select the one which is used in Auto Scaler configurations of EKS > actions > modify template > select AMI new one created above from My AMI section > Create template version 
+  - EC2 > Launch templates > select the one which is used in Auto Scaler configurations of EKS > actions > modify template > select AMI new one created above from My AMI section > Create template version
 - Select default version
   - EC2 > Launch templates > select the one which is used in Auto Scaler configurations of EKS > actions > set default version > select latest created > set default version
 - Change version in Auto scaling group
   - EC2 > Auto scaling group > select the one which is used in Auto Scaler configurations of EKS > actions > edit > change launch template version > select latest > save
 - Delete all EC2 instances created as part of EKS worker nodes and now let auto scaler create new nodes as per custom AMI
 
-## CICD covered features
+## CICD covered features and Changes to be done
 - Versioning: docker image
   - pom.xml > properties > `<version.number>${env.BUILD_NUMBER}</version.number>` provided which is docker image tag and same has been referenced further in fabric8 > docker-maven-plugin > configurations
-  - jenkinsfile creates build_properties.yaml file which forward the same build_number to spinnaker 
+  - jenkinsfile creates build_properties.yaml file which forward the same build_number to spinnaker
   ```
   stage("Create spinnaker properties file"){
     steps{
@@ -219,5 +219,8 @@ awsS3V3:
     }
   }
   ```
-  - spinnaker > application > pipeline > deployment stage > deployment.yaml file>  container section > `${trigger["properties"]["BUILD_NUMBER"]}` provided
-- Versioning: artifact 
+  - spinnaker > application > pipeline > deployment stage > petclinicDeployment.yaml file>  container section > `${trigger["properties"]["BUILD_NUMBER"]}` provided
+- Versioning: artifact
+- Maven-settings.xml file
+  - For docker retistry, provide first `id` tag as entire url of jfrog artifactory ex. jforgArtifactoryURL:80
+  - For java artifacts just keep the `id` tag as `jfrogArtifactory`

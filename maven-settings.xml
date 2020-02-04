@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <interactiveMode>false</interactiveMode>
+
+    <servers>
+        <server>
+           <id>jforgArtifactoryURL:80-This is for docker registry</id>
+            <username>admin</username>
+	    <password>adminUserKey</password>
+        </server>
+        <server>
+            <id>jfrogArtifactory-Keep as it is "jfrogArtifactory"-This is for artifacts</id>
+            <username>admin</username>
+            <password>adminUserKey</password>
+        </server>
+    </servers>
+
+</settings>
