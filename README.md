@@ -7,7 +7,7 @@
 #### Package Manager for Kubernetes - Helm
 #### Artifact Repository Tool - Jfrog Artifactory
 
-## EKS
+### EKS
  - How to provision using Console
    - https://docs.aws.amazon.com/eks/latest/userguide/getting-started-console.html
    - Create your Amazon EKS Cluster VPC
@@ -19,26 +19,26 @@
      - Cluster Autoscaler Node group Considerations
      - Deploy the Cluster Autoscaler
 
-## EFS
+### EFS
 - AWS > select region same as EKS > EFS > Create > VPC of the same as EKS > select **private subnets** > Tags > rest all configurations as it is > create
 - To mount EFS on administration VM for quick development/testing/r&d purpose, if VM is not AMI then efs can be mounted using NFS command
   - Install nfs client command https://docs.aws.amazon.com/efs/latest/ug/mounting-fs-old.html
   - run mount command https://docs.aws.amazon.com/efs/latest/ug/mounting-fs-mount-cmd-dns-name.html
 
-## Administration VM AWS EC2 Ubuntu
+### Administration VM AWS EC2 Ubuntu
  - How to provision using console
    - Straight forward EC2 instance provisioning steps - **just make sure that**
      - provision in the same vpc in which kubernetes is provisioned and
      - enable public ip assignment
 
-## Helm: Install on Administration VM
+### Helm: Install on Administration VM
  - https://github.com/JaydeepUniverse/automation/blob/master/helm.yaml
 
-## Spinnaker CLI: Install on Administration VM
+### Spinnaker CLI: Install on Administration VM
  - Document at https://www.spinnaker.io/setup/spin/ and https://www.spinnaker.io/guides/spin/
  - Ansible automated installation script at https://github.com/JaydeepUniverse/automation/blob/master/spinnakerCLI.yaml
 
-## Jenkins: Install on EKS using Helm
+### Jenkins: Install on EKS using Helm
  - Create jenkinsPersistentVolumeClaim.yaml
  - Create jenkinsStorageClass.yaml
  - Get jenkins helm chart values
@@ -56,7 +56,7 @@
  - Install
    - `helm install myjenkins stable/jenkins --values /tmp/jenkins.values`
 
-## Jenkins: Configurations
+### Jenkins: Configurations
 - Manage jenkins > cloud > kubernetes >
   - jenkins url: http://k8sServiceName.namespaceOfJenkins:8080 ex. `http://myjenkins.devops-tools:8080`
   ```diff
@@ -68,7 +68,7 @@
   ```
   - rest all parameters as it is and save
 
-## Jfrog Artifactory: Install on EKS
+### Jfrog Artifactory: Install on EKS
  - Create S3 bucket for storage purpose ***<< Confirm this functionality***
  - First add jfrog required repository
    - `helm repo add jfrog https://charts.jfrog.io`
@@ -112,7 +112,7 @@ awsS3V3:
  - Install
    - `helm install myartifactory  jfrog/artifactory --values /tmp/artifactory.values`
 
-## Spinnaker: Install on EKS
+### Spinnaker: Install on EKS
  - Straight forward steps from https://www.spinnaker.io/setup/install/
  - Install Halyard
    - provide the username by which want to run halyard/spinnaker service
@@ -127,15 +127,15 @@ awsS3V3:
      - **Make sure to add `--bucket s3BucketName` in the command else random name bucket will created**
  - Deploy and Connect
 
-## Spinnaker: Configure to Expose Publicly
+### Spinnaker: Configure to Expose Publicly
  - Straight forward steps from https://docs.armory.io/spinnaker/exposing_spinnaker/
 
-## Spinnaker: Configure on HTTPS
+### Spinnaker: Configure on HTTPS
  - Straight forward steps from  https://www.spinnaker.io/setup/security/ssl/#server-terminated-ssl
  - **Make sure to increase --liveness-probe-initial-delay-seconds to 600s in the command**
    - `hal config deploy edit --liveness-probe-enabled true --liveness-probe-initial-delay-seconds 600`
 
-## Jenkins: Create Multibranch CI pipeline
+### Jenkins: Create Multibranch CI pipeline
  - Create credentials to authenticate to git repository
    - Jenkins > Credentials > System > Global credentials > Add credentials
      - Scope: Global
@@ -146,8 +146,8 @@ awsS3V3:
  - Jenkins > new job > multibranch type > git > url, credentials > save
  - This job will automatically fetch all branch names from git and create separate jobs for each branch wise
 
- ## Spinnaker: Create CD pipeline
- # (1) First Implementation - Manual
+### Spinnaker: Create CD pipeline
+## (1) First Implementation - Manual
  - Before creating spinnaker pipeline, first create kubernetes secret to pull the image from private docker registry
    - Create under same namespace same as other resources created and **name the secret as artifactoryCred**
    - Refer https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -162,7 +162,8 @@ awsS3V3:
    - manifest configuration: copy and paste petclinicNamespace.yaml file from this project
  - Similarly create 2 more stages for petclinicService.yaml, petclinicService.yaml
 
-# (2) Second Implementation - Automation - Creating pipeline from jenkins CI
+## (2) Second Implementation - Automation - 
+# (1) Creating pipeline from jenkins CI
 - Clone the project and Create Template.json spinnaker pipeline file in the project root directory
   - ```spin pipeline get --name cdspinnaker --application petclinic > template.json```
 - We will use 2 dynamic parameters: Version(calculated by jgiver) and Branch name (jenkins default env variable)
@@ -196,6 +197,13 @@ version: "${version}"
             }
         }
   ```
+# (2) Creating Spinnaker pipeline before Build step so that pipeline creates properly by the time build finishes and then can execute and also dynamically changing branch name in template.json file
+- Moved pipeline creation steps before build in jenkinsfile
+- For changing branch name in template.json file used below commands in jenkinsfile
+```
+sh "sed -i 's/branchName/'${env.BRANCH_NAME}'/g' template.json"
+sh "spin pipeline save --file template.json"
+```                
 
 ## Jenkins-Spinnaker: Integration
   - Refer https://www.spinnaker.io/setup/ci/jenkins/#add-your-jenkins-master

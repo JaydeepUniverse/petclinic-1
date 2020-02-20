@@ -18,6 +18,25 @@ pipeline {
         def version = "${params.version}"
     }
     stages {
+        stage("Get application version & create spinnaker pipeline"){
+            steps{
+                script{
+                    version = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+                }
+                sh "sed -i 's/branchName/'${env.BRANCH_NAME}'/g' template.json"
+                sh "spin pipeline save --file template.json"
+            }
+        }
+        stage("Create spinnaker properties file"){
+            steps{
+                sh """
+echo "---
+branch_name: "${env.BRANCH_NAME}"
+version: "${version}"
+" > build_properties.yaml
+"""
+            }
+        }
         stage("Build"){
             steps{
                     sh "mvn deploy docker:push -s maven-settings.xml -Dmaven.test.skip=true -Dstyle.color=always -B"
@@ -31,24 +50,6 @@ pipeline {
                 always{
                         junit "**/target/surefire-reports/TEST-*.xml"
                 }
-            }
-        }
-        stage("Get application version & create spinnaker pipeline"){
-            steps{
-                script{
-                    version = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
-                }
-                sh "spin pipeline save --file template.json"
-            }
-        }
-        stage("Create spinnaker properties file"){
-            steps{
-                sh """
-echo "---
-branch_name: "${env.BRANCH_NAME}"
-version: "${version}"
-" > build_properties.yaml
-"""
             }
         }
     }
