@@ -21,6 +21,9 @@
 
 ## EFS
 - AWS > select region same as EKS > EFS > Create > VPC of the same as EKS > select **private subnets** > Tags > rest all configurations as it is > create
+- To mount EFS on administration VM for quick development/testing/r&d purpose, if VM is not AMI then efs can be mounted using NFS command
+  - Install nfs client command https://docs.aws.amazon.com/efs/latest/ug/mounting-fs-old.html
+  - run mount command https://docs.aws.amazon.com/efs/latest/ug/mounting-fs-mount-cmd-dns-name.html
 
 ## Administration VM AWS EC2 Ubuntu
  - How to provision using console
@@ -30,6 +33,10 @@
 
 ## Helm: Install on Administration VM
  - https://github.com/JaydeepUniverse/automation/blob/master/helm.yaml
+
+## Spinnaker CLI: Install on Administration VM
+ - Document at https://www.spinnaker.io/setup/spin/ and https://www.spinnaker.io/guides/spin/
+ - Ansible automated installation script at https://github.com/JaydeepUniverse/automation/blob/master/spinnakerCLI.yaml
 
 ## Jenkins: Install on EKS using Helm
  - Create jenkinsPersistentVolumeClaim.yaml
@@ -140,6 +147,7 @@ awsS3V3:
  - This job will automatically fetch all branch names from git and create separate jobs for each branch wise
 
  ## Spinnaker: Create CD pipeline
+ # (1) First Implementation - Manual
  - Before creating spinnaker pipeline, first create kubernetes secret to pull the image from private docker registry
    - Create under same namespace same as other resources created and **name the secret as artifactoryCred**
    - Refer https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -153,6 +161,41 @@ awsS3V3:
      - Adding an Account from https://www.spinnaker.io/setup/install/providers/kubernetes-v2/#adding-an-account
    - manifest configuration: copy and paste petclinicNamespace.yaml file from this project
  - Similarly create 2 more stages for petclinicService.yaml, petclinicService.yaml
+
+# (2) Second Implementation - Automation - Creating pipeline from jenkins CI
+- Clone the project and Create Template.json spinnaker pipeline file in the project root directory
+  - ```spin pipeline get --name cdspinnaker --application petclinic > template.json```
+- We will use 2 dynamic parameters: Version(calculated by jgiver) and Branch name (jenkins default env variable)
+- Then pipeline creation command ```spin pipeline save --file template.json```
+- All configurations and code is as below in the pipeline
+```
+    parameters {
+        string(name: 'version', defaultValue: '')
+    }
+    environment{
+
+        def version = "${params.version}"
+    }
+
+    stage("Get application version & create spinnaker pipeline"){
+            steps{
+                script{
+                    version = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+                }
+                sh "spin pipeline save --file template.json"
+            }
+        }
+    stage("Create spinnaker properties file"){
+            steps{
+                sh """
+echo "---
+branch_name: "${env.BRANCH_NAME}"
+version: "${version}"
+" > build_properties.yaml
+"""
+            }
+        }
+  ```
 
 ## Jenkins-Spinnaker: Integration
   - Refer https://www.spinnaker.io/setup/ci/jenkins/#add-your-jenkins-master
@@ -205,6 +248,7 @@ awsS3V3:
 - Delete all EC2 instances created as part of EKS worker nodes and now let auto scaler create new nodes as per custom AMI
 
 ## CICD covered features and Changes to be done
+# Versioning Part 1
 - Versioning: docker image
   - pom.xml > properties > `<version.number>${env.BUILD_NUMBER}</version.number>` provided which is docker image tag and same has been referenced further in fabric8 > docker-maven-plugin > configurations
   - jenkinsfile creates build_properties.yaml file which forward the same build_number to spinnaker
@@ -228,3 +272,12 @@ awsS3V3:
 - Maven-settings.xml file
   - For docker retistry, provide first `id` tag as entire url of jfrog artifactory ex. jforgArtifactoryURL:80
   - For java artifacts just keep the `id` tag as `jfrogArtifactory`
+
+# Versioning Part 2 - This is implemented - Good approach
+- It is done using jgitver plugin
+- Create .mvn directory in project root directory > inside .mvn create extension.xml and jgitver.config.xml files. Content of the files are inside this project.
+- Here is how does it work > Let's say we have initial version in maven pom is 1.0.0 and started development with tag 1.0.0, then our versions would be 1.0.1-1, 1.0.1-2, 1.0.1-3... Next let's say after feature completion we have tagged it 1.0.2 then version will be 1.0.2 and after that automatically 1.0.3-1, 1.0.3-2, so on.
+- Also I've appended branch name in the version so now our version would be 1.0.1-1-branchName, 1.0.1-2-branchName. ** This would not work for Master branch. **
+- Read below urls for more details
+   - https://jgitver.github.io/
+   - https://github.com/jgitver/jgitver-maven-plugin

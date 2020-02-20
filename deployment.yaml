@@ -1,0 +1,19 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: petclinic
+  namespace: petclinic
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: petclinic
+      name: petclinic
+    spec:
+      containers:
+        - image: >-
+            a6d436829393811ea90d80636b12ea03-121855149.ap-southeast-1.elb.amazonaws.com:80/docker-local/spring-petclinic:${trigger["properties"]["BUILD_NUMBER"]}
+          name: petclinic
+      imagePullSecrets:
+        - name: artifactoryCred

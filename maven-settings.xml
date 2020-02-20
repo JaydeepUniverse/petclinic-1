@@ -7,14 +7,15 @@
 
     <servers>
         <server>
-           <id>jforgArtifactoryURL:80-This is for docker registry</id>
+		            <id>a6d436829393811ea90d80636b12ea03-121855149.ap-southeast-1.elb.amazonaws.com:80</id>
+
             <username>admin</username>
-	    <password>adminUserKey</password>
+            <password>AP52U2DDNJ7ZtbF96AkxepV7Dqn</password>
         </server>
-        <server>
-            <id>jfrogArtifactory-Keep as it is "jfrogArtifactory"-This is for artifacts</id>
+                <server>
+            <id>jfrogArtifactory</id>
             <username>admin</username>
-            <password>adminUserKey</password>
+            <password>AP52U2DDNJ7ZtbF96AkxepV7Dqn</password>
         </server>
     </servers>
 

@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.samples</groupId>
-  <artifactId>spring-petclinic</artifactId>
-  <version>${env.BUILD_NUMBER}-SNAPSHOT</version>
+  <artifactId>petclinic</artifactId>
+  <version>1.0.0</version>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
@@ -28,10 +27,10 @@
     <wro4j.version>1.8.0</wro4j.version>
 
     <jacoco.version>0.8.2</jacoco.version>
-    <version.number>${env.BUILD_NUMBER}</version.number> 
-    <docker.repository.name>jfrogArtifactoryURL:80/docker-local/${project.artifactId}</docker.repository.name>
-   
-  
+    <version.number>${project.version}</version.number>
+    <docker.repository.name>a6d436829393811ea90d80636b12ea03-121855149.ap-southeast-1.elb.amazonaws.com:80/docker-local/${project.artifactId}</docker.repository.name>
+
+
   </properties>
 
   <dependencies>
@@ -188,53 +187,53 @@
           </dependency>
         </dependencies>
       </plugin>
-          <plugin>
-           <groupId>io.fabric8</groupId>
-           <artifactId>docker-maven-plugin</artifactId>
-           <version>0.31.0</version>
-           <configuration>
-               <verbose>true</verbose>
-               <images>
-                   <image>
-		      <name>${docker.repository.name}:${version.number}</name>
-                         <build>
-                           <contextDir>${project.basedir}</contextDir>
-                           <dockerFile>Dockerfile</dockerFile>
-                           <assembly>
-                              <descriptorRef>artifact</descriptorRef>
-                           </assembly>
-			   <tags>
-                             <tag>latest</tag>
-                           </tags>
-                        </build>
-                   </image>
-               </images>
-           </configuration>
-           <executions>
-               <execution>
-                   <id>docker-build</id>
-                   <phase>package</phase>
-                   <goals>
-                       <goal>build</goal>
-                   </goals>
-               </execution>
-                           <execution>
-                   <id>docker-push</id>
-                   <phase>deploy</phase>
-                   <goals>
-                       <goal>push</goal>
-                   </goals>
-               </execution>
-           </executions>
-       </plugin>
-           <plugin>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>0.31.0</version>
+        <configuration>
+          <verbose>true</verbose>
+          <images>
+            <image>
+              <name>${docker.repository.name}:${version.number}</name>
+              <build>
+                <from>anapsix/alpine-java</from>
+                <assembly>
+                  <targetDir>/home</targetDir>
+                  <descriptorRef>artifact</descriptorRef>
+                </assembly>
+                <entryPoint>
+                  <shell>java -jar /home/${project.artifactId}-${project.version}.jar</shell>
+                </entryPoint>
+              </build>
+            </image>
+          </images>
+        </configuration>
+        <executions>
+          <execution>
+            <id>docker-build</id>
+            <phase>package</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>docker-push</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>push</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
       </plugin>
 
     </plugins>
-	
-        <pluginManagement>
+
+    <pluginManagement>
       <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -296,12 +295,12 @@
     <snapshotRepository>
       <id>jfrogArtifactory</id>
       <name>jfrogArtifactory-snapshots</name>
-      <url>http://jfrogArtifactoryURL:80/artifactory/jfrogArtifactory-snapshots</url>
+      <url>http://a6d436829393811ea90d80636b12ea03-121855149.ap-southeast-1.elb.amazonaws.com:80/artifactory/jfrogArtifactory-snapshots</url>
     </snapshotRepository>
     <repository>
       <id>jfrogArtifactory</id>
       <name>jfrogArtifactory-releases</name>
-      <url>http://jfrogArtifactoryURL:80/artifactory/jfrogArtifactory-releases/</url>
+      <url>http://a6d436829393811ea90d80636b12ea03-121855149.ap-southeast-1.elb.amazonaws.com:80/artifactory/jfrogArtifactory-releases/</url>
     </repository>
   </distributionManagement>
 
