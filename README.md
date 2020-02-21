@@ -289,3 +289,16 @@ sh "spin pipeline save --file template.json"
 - Read below urls for more details
    - https://jgitver.github.io/
    - https://github.com/jgitver/jgitver-maven-plugin
+
+# Versioning Part 2 - This is implemented and improvised for using jenkins build number as patch auto increment in version - Good approach
+- Changed jgitver strategy and versionPattern changed
+```
+<configuration xmlns="http://jgitver.github.io/maven/configuration/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://jgitver.github.io/maven/configuration/1.0.0 https://jgitver.github.io/maven/configuration/jgitver-configuration-v1_0_0.xsd">
+<strategy>PATTERN</strategy>
+<versionPattern>${M}.${m}.${p}-${env.BUILD_NUMBER}</versionPattern>
+</configuration>
+```
+- changed in mvn build command - added -DBUILD_NUMBER=${BUILD_NUMBER}
+```sh "mvn deploy docker:push -s maven-settings.xml -Dmaven.test.skip=true -DBUILD_NUMBER=${BUILD_NUMBER} -Dmaven.test.skip=true -Dstyle.color=always -B"``` 

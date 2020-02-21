@@ -39,18 +39,18 @@ version: "${version}"
         }
         stage("Build"){
             steps{
-                    sh "mvn deploy docker:push -s maven-settings.xml -Dmaven.test.skip=true -Dstyle.color=always -B"
+                    sh "mvn deploy docker:push -s maven-settings.xml -Dmaven.test.skip=true -DBUILD_NUMBER=${BUILD_NUMBER} -Dmaven.test.skip=true -Dstyle.color=always -B"
                 }
             }
-        stage("Test"){
+       stage("Test"){
             steps{
-                    sh "mvn test"
-            }
-            post{
-                always{
-                        junit "**/target/surefire-reports/TEST-*.xml"
-                }
-            }
+                  sh "mvn test"
+          }
+          post{
+              always{
+                      junit "**/target/surefire-reports/TEST-*.xml"
+              }
+           }
         }
     }
     post {
