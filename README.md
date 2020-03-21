@@ -7,20 +7,29 @@
 #### Package Manager for Kubernetes - Helm
 #### Artifact Repository Tool - Jfrog Artifactory
 
-### EKS
- - How to provision using Console
-   - https://docs.aws.amazon.com/eks/latest/userguide/getting-started-console.html
-   - Create your Amazon EKS Cluster VPC
-     - Public and Private subnet
-   - Create Your Amazon EKS Cluster
-   - Create a kubeconfig File
-   - Launch a managed node group
-   - Create Cluster Autoscaler for auto VMs provisioning - https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html
-     - Cluster Autoscaler Node group Considerations
-     - Deploy the Cluster Autoscaler
+# EKS
+- ## Using UI
+  - How to provision using Console
+  - https://docs.aws.amazon.com/eks/latest/userguide/getting-started-console.html
+  - Create your Amazon EKS Cluster VPC
+    - Public and Private subnet
+  - Create Your Amazon EKS Cluster
+  - Create a kubeconfig File
+  - Launch a managed node group
+  - Create Cluster Autoscaler for auto VMs provisioning - https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html
+    - Cluster Autoscaler Node group Considerations
+    - Deploy the Cluster Autoscaler
+- ## Using Terraform
+  - Full script is available at https://github.com/JaydeepUniverse/terraform/tree/master/aws/eks 
+  ```diff 
+  - make sure about notes written eks github readme
+  ```
 
-### EFS
-- AWS > select region same as EKS > EFS > Create > VPC of the same as EKS > select **private subnets** > Tags > rest all configurations as it is > create
+# EFS
+- ## Using UI
+  - AWS > select region same as EKS > EFS > Create > VPC of the same as EKS > select **private subnets** > Tags > rest all configurations as it is > create
+- ## Using Terraform
+  - Full script is available at https://github.com/JaydeepUniverse/terraform/tree/master/aws/efs 
 - To mount EFS on administration VM for quick development/testing/r&d purpose, if VM is not AMI then efs can be mounted using NFS command
   - Install nfs client command https://docs.aws.amazon.com/efs/latest/ug/mounting-fs-old.html
   - run mount command https://docs.aws.amazon.com/efs/latest/ug/mounting-fs-mount-cmd-dns-name.html
@@ -111,6 +120,11 @@ awsS3V3:
 ```
  - Install
    - `helm install myartifactory  jfrog/artifactory --values /tmp/artifactory.values`
+
+## Jfrog OSS
+ - Jfrog OSS can be configured using command ```helm install --name artifactory --set artifactory.image.repository=docker.bintray.io/jfrog/artifactory-oss stable/artifactory``` however **docker registry feature is not supportable in open source image** below are supported link
+ - https://stackoverflow.com/questions/58049331/does-jfrog-artifactory-oss-provides-private-docker-registry
+ - https://www.jfrog.com/confluence/display/JFROG/Getting+Started+with+Artifactory+as+a+Docker+Registry
 
 ### Spinnaker: Install on EKS
  - Straight forward steps from https://www.spinnaker.io/setup/install/

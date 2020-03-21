@@ -1,0 +1,60 @@
+<div dir="ltr" style="text-align: left;" trbidi="on">
+    <html>
+    <meta name="viewport"content="width=device-width, initial-scale=1">
+    <link rel="stylesheet"href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet"href="https://www.w3schools.com/lib/w3-colors-flat.css">
+    <style>
+        pre code {
+                background-color: #eee;
+                display: block;
+                padding: 20px;
+                color: black;
+                overflow-x: auto;
+                white-space: pre-wrap;
+                white-space: -moz-pre-wrap;
+                white-space: -pre-wrap;
+                white-space: -o-pre-wrap;
+                word-wrap: break-word;
+                line-height: 20px;
+            }
+        code {color: blue;}
+    </style>
+    <body>
+        <div class="w3-panel w3-flat-turquoise">
+            <h4>Full script is available at</h4> 
+            <p><a href="https://github.com/JaydeepUniverse/terraform/tree/master/aws/efs" target="_blank"><u>https://github.com/JaydeepUniverse/terraform/tree/master/aws/efs</u></a></p>
+            <h4>Prerequisites - Along with EFS creation we'd need to mount on subnet as well where we would going to use it, hence To get existing subnet details follow below steps</h4> 
+            <ul>
+                <li>Import existing subnet details by adding below code to main.tf and</li>
+                <li>
+                    <pre>
+                        <code>
+resource "aws_subnet" "subnet-aaa" {
+}
+
+resource "aws_subnet" "subnet-aaa" {
+}
+                        </code>
+                    </pre>
+                </li>
+                <li>Run terraform import command - <code>terraform import aws_subnet.subnet-aaa subnet-aaa terraform import aws_subnet.subnet-aaa subnet-aaa</code></li>
+                <li>Then add subnet values from terraform.tfstateto main.tf else terraform will add/remove parameters accordingly for the same subnet ex.
+                    <pre>
+                        <code>
+resource "aws_subnet" "subnet-aaa" {
+    vpc_id = "vpc-aaa"
+    cidr_block = "10.20.1.0/24"
+    tags = {
+        "Name": "nextgen-cicd-dev-public-subnets-1"
+        "kubernetes.io/cluster/nextgen-cicd-dev-eks-cluster": "shared"
+        "kubernetes.io/role/elb": "1"
+      }
+}
+                        </code>
+                    </pre>
+                </li>
+            </ul>
+        </div>
+    </body>
+    </html>
+</div>
