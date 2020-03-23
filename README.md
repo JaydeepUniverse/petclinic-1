@@ -1,11 +1,26 @@
-#### Application Programming Language - Java Spring Boot
-#### DevOps Tools Installation Platform - AWS EKS
-#### Administration VM - AWS EC2 Ubuntu for Helm, Kubectl, Halyard, AWS CLI etc.
-#### Network file system to share data among kubernetes nodes - AWS EFS
-#### CI - Jenkins
-#### CD - Spinnaker
-#### Package Manager for Kubernetes - Helm
-#### Artifact Repository Tool - Jfrog Artifactory
+##### Application Programming Language - Java Spring Boot
+##### DevOps Tools Installation Platform - AWS EKS
+##### Application Deployment Platform - AWS EKS
+##### Administration VM - AWS EC2 Ubuntu for Helm, Kubectl, Halyard, AWS CLI etc.
+##### Network file system to share data among kubernetes nodes - AWS EFS
+##### CI - Jenkins
+##### CD - Spinnaker
+##### Package Manager for Kubernetes - Helm
+##### Artifact Repository Tool - Jfrog Artifactory
+
+### Administration VM AWS EC2 Ubuntu
+ - How to provision using console
+   - Straight forward EC2 instance provisioning steps - **just make sure that**
+     - provision in the same vpc in which kubernetes is provisioned and
+     - enable public ip assignment
+
+
+# Installation of required packages on Administration VM
+- Ansible - https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#latest-releases-via-apt-ubuntu
+- Terraform - https://github.com/JaydeepUniverse/automation/blob/master/terraform.yaml
+- Helm - https://github.com/JaydeepUniverse/automation/blob/master/helm.yaml
+- Spinnaker CLI - https://github.com/JaydeepUniverse/automation/blob/master/spinnakerCLI.yaml
+
 
 # EKS
 - ## Using UI
@@ -25,6 +40,7 @@
   - make sure about notes written eks github readme
   ```
 
+
 # EFS
 - ## Using UI
   - AWS > select region same as EKS > EFS > Create > VPC of the same as EKS > select **private subnets** > Tags > rest all configurations as it is > create
@@ -34,36 +50,34 @@
   - Install nfs client command https://docs.aws.amazon.com/efs/latest/ug/mounting-fs-old.html
   - run mount command https://docs.aws.amazon.com/efs/latest/ug/mounting-fs-mount-cmd-dns-name.html
 
-### Administration VM AWS EC2 Ubuntu
- - How to provision using console
-   - Straight forward EC2 instance provisioning steps - **just make sure that**
-     - provision in the same vpc in which kubernetes is provisioned and
-     - enable public ip assignment
-
-### Helm: Install on Administration VM
- - https://github.com/JaydeepUniverse/automation/blob/master/helm.yaml
-
-### Spinnaker CLI: Install on Administration VM
- - Document at https://www.spinnaker.io/setup/spin/ and https://www.spinnaker.io/guides/spin/
- - Ansible automated installation script at https://github.com/JaydeepUniverse/automation/blob/master/spinnakerCLI.yaml
 
 ### Jenkins: Install on EKS using Helm
  - Create jenkinsPersistentVolumeClaim.yaml
  - Create jenkinsStorageClass.yaml
- - Get jenkins helm chart values
-   - `helm inspect values stable/jenkins > /tmp/jenkins.values`
- - Append this file with below parameters
-   ```
-   namespaceOverride: jenkins
-   master
-    serviceType: LoadBalancer
-   slaveKubernetesNamespace: jenkins
-   existingClaim: jenkins
-   storageClass: jenkins
-   adminPassword: admin
-   ```
- - Install
-   - `helm install myjenkins stable/jenkins --values /tmp/jenkins.values`
+ - Create jenkins namespace
+ - Install using helm command
+ `helm install ng-jenkins stable/jenkins --set namespaceOverride=jenkins,master.serviceType=LoadBalancer,master.slaveKubernetesNamespace=jenkins,master.resources.requests.cpu=500m,master.resources.requests.memory=1Gi,master.resources.limits.cpu=500m,master.resources.limits.memory=1Gi,persistence.existingClaim=jenkins-pvc,persistence.storageClass=jenkins-sc,master.adminPassword=admin`
+
+
+### Spinnaker: Install on EKS
+ - Straight forward steps from https://www.spinnaker.io/setup/install/
+ - Install Halyard
+   - provide the username by which want to run halyard/spinnaker service
+ - Choose Cloud Provider > Kubernetes(Manifest Based)
+   - Optional: Create a Kubernetes Service Account
+   - Optional: Configure Kubernetes Roles (RBAC)
+   - Adding an account
+ - Choose an Environment > Distributed Installation
+   - **Make sure to run last optional command as well with 600s value**
+ - Choose a Storage Service
+   - S3
+     - **Make sure to add `--bucket s3BucketName` in the command else random name bucket will created**
+ - Deploy and Connect
+
+
+### Spinnaker: Configure to Expose Publicly
+ - Straight forward steps from https://docs.armory.io/spinnaker/exposing_spinnaker/
+
 
 ### Jenkins: Configurations
 - Manage jenkins > cloud > kubernetes >
@@ -126,28 +140,12 @@ awsS3V3:
  - https://stackoverflow.com/questions/58049331/does-jfrog-artifactory-oss-provides-private-docker-registry
  - https://www.jfrog.com/confluence/display/JFROG/Getting+Started+with+Artifactory+as+a+Docker+Registry
 
-### Spinnaker: Install on EKS
- - Straight forward steps from https://www.spinnaker.io/setup/install/
- - Install Halyard
-   - provide the username by which want to run halyard/spinnaker service
- - Choose Cloud Provider > Kubernetes(Manifest Based)
-   - Optional: Create a Kubernetes Service Account
-   - Optional: Configure Kubernetes Roles (RBAC)
-   - Adding an account
- - Choose an Environment > Distributed Installation
-   - **Make sure to run last optional command as well with 60s value**
- - Choose a Storage Service
-   - S3
-     - **Make sure to add `--bucket s3BucketName` in the command else random name bucket will created**
- - Deploy and Connect
-
-### Spinnaker: Configure to Expose Publicly
- - Straight forward steps from https://docs.armory.io/spinnaker/exposing_spinnaker/
 
 ### Spinnaker: Configure on HTTPS
- - Straight forward steps from  https://www.spinnaker.io/setup/security/ssl/#server-terminated-ssl
- - **Make sure to increase --liveness-probe-initial-delay-seconds to 600s in the command**
-   - `hal config deploy edit --liveness-probe-enabled true --liveness-probe-initial-delay-seconds 600`
+- First expplore this https://docs.armory.io/spinnaker/exposing_spinnaker/#secure-with-ssl-on-eks and then go through next option
+- Straight forward steps from  https://www.spinnaker.io/setup/security/ssl/#server-terminated-ssl
+- **Make sure to increase --liveness-probe-initial-delay-seconds to 600s in the command**
+  - `hal config deploy edit --liveness-probe-enabled true --liveness-probe-initial-delay-seconds 600`
 
 ### Jenkins: Create Multibranch CI pipeline
  - Create credentials to authenticate to git repository

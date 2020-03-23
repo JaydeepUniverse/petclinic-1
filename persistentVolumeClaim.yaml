@@ -4,7 +4,7 @@ metadata:
   name: jenkins-pvc
   namespace: devops-tools
 spec:
-  storageClassName: jenkins-storage-class
+  storageClassName: jenkins-sc
   resources:
     requests:
       storage: 50Gi

@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: jenkins
-  namespace: jenkins
+  name: nexus
+  namespace: nexus
 spec:
-  storageClassName: jenkins
+  storageClassName: nexus
   resources:
     requests:
       storage: 50Gi
