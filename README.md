@@ -6,7 +6,7 @@
 ##### CI - Jenkins
 ##### CD - Spinnaker
 ##### Package Manager for Kubernetes - Helm
-##### Artifact Repository Tool - Jfrog Artifactory
+##### Artifact Repository Tool - Nexus, and instruction for Jfrog Artifactory as well
 
 ### Administration VM AWS EC2 Ubuntu
  - How to provision using console
@@ -77,6 +77,40 @@
 
 ### Spinnaker: Configure to Expose Publicly
  - Straight forward steps from https://docs.armory.io/spinnaker/exposing_spinnaker/
+
+
+### Nexus: Installation on EKS
+- ## Using Helm
+  - I've tried many ways of installing nexus using Helm on kubernetes, but I'm failing, there are multiple reasons for that
+    - Through helm it needs dedicated domain or public IP routed on that nexus service to access nexus UI
+	  - Nexus uses separate port for docker type registry hence it may need all separate ports on single ip address to expose which I'm not getting how to do that on Helm chart values
+	  - Tried with normal service type ClusterIP and exposing but still it same because internally it needs separate dedicated domain or public IP
+	  - Hence it won't work with nginx-ingress as well, though nexus UI may work but docker registry won't work
+	  - This is supported URL https://freshbrewed.science/getting-started-with-containerized-nexus/index.html where author has mentioned the same in summary - that he couldn't able to succeed usin Helm
+	  - Another url how this author has tried but with domain name - https://devopsinitiative.com/blog/2018/03/01/setting-up-nexus3-as-a-private-container-registry-inside-kubernetes/
+
+- ## Using normal kubernetes manifest files
+  - Create nexusStorageClass.yaml
+  - Create nexusPersistentVolumeClaim.yaml
+  - Create nexusDeployment.yaml
+  - Create nexusService.yaml
+
+### Nexus: Configuration
+- At first time login, password would be stored in - nexus-data/admin.password
+- ## To create **docker type** repository
+  - Create blob-store for all required repositories - Settings button on top left > Blob stores > create blob store
+  - Settings button on top left > repositories > create repository
+	- Select Docker(Hosted) for docker type
+    - Name
+		- Online - keep selected
+		- Repository connectors http/https - on this port docker images will be uploaded - provide port number which is exposed in service as well
+		- Allow anonymous docker pull - select
+		- Enable docker v1 api - select
+		- Blob store - select from previous step created
+		- Deployment policy: Allow Redeploy for Snapshots type of repo and Disable redeploy for Release type of repo
+	  - Cleanup policy - select if created one
+  - `settings > security > realms > move "docker bearer token realm" to active`, else while pushing image to repo. it will throw error `Error response from daemon: login attempt to http://10.236.2.5:8085/v2/ failed with status: 401 Unauthorized`
+
 
 
 ### Jenkins: Configurations

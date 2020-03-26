@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nexus
+  namespace: nexus
+  labels:
+    app: nexus
+spec:
+  type: LoadBalancer
+  ports:
+    - name: nexus-ui
+      port: 8081
+      protocol: TCP
+      targetPort: 8081
+    - name: docker-1
+      port: 8082
+      protocol: TCP
+      targetPort: 8082
+  selector:
+    app: nexus

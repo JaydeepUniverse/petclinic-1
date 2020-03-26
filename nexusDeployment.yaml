@@ -1,0 +1,40 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nexus
+  namespace: nexus
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: nexus
+      labels:
+        app: nexus
+    spec:
+      securityContext:
+        fsGroup: 2000
+      containers:
+      - image: sonatype/nexus3:latest
+        name: nexus
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: 1Gi
+            cpu: 500m
+          limits:
+              memory: 1Gi
+              cpu: 500m
+        ports:
+          - containerPort: 8081
+            protocol: TCP
+            name: nexus-ui
+          - containerPort: 8082
+            protocol: TCP
+            name: docker-1
+        volumeMounts:
+          - name: nexus-data
+            mountPath: /nexus-data
+      volumes:
+        - name: nexus-data
+          persistentVolumeClaim:
+            claimName: nexus

@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: nexus
   namespace: nexus
+  labels:
+    app: nexus
 spec:
   storageClassName: nexus
   resources:
