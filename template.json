@@ -42,7 +42,7 @@
          {
           "apiVersion": "v1",
           "data": {
-           ".dockerconfigjson": "eyJhdXRocyI6eyJhZmU4ZjViNWE2ZjI5MTFlYTliN2EwMjExMDhlYWEwOS0xOTQ2MjcwMTk4LnVzLWVhc3QtMi5lbGIuYW1hem9uYXdzLmNvbTo4MDgyIjp7InVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6Ik93RyVPOFY3NFhQSiIsImF1dGgiOiJZV1J0YVc0NlQzZEhKVTg0VmpjMFdGQksifX19"
+           ".dockerconfigjson": "xxxx"
           },
           "kind": "Secret",
           "metadata": {
@@ -142,7 +142,7 @@
           "spec": {
            "containers": [
             {
-             "image": "afe8f5b5a6f2911ea9b7a021108eaa09-1946270198.us-east-2.elb.amazonaws.com:8082/petclinic:${trigger[\"properties\"][\"version\"]}",
+             "image": "xxx.us-east-2.elb.amazonaws.com:8082/petclinic:${trigger[\"properties\"][\"version\"]}",
              "name": "petclinic"
             }
            ],
