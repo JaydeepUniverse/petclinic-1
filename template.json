@@ -7,7 +7,7 @@
     "name": "version",
     "stages": [
      {
-      "account": "my-eks-cluster-jaydeepEKS1",
+      "account": "nextgen-app-eks",
       "cloudProvider": "kubernetes",
       "manifests": [
        {
@@ -36,20 +36,20 @@
       "type": "deployManifest"
      },
      {
-        "account": "my-eks-cluster-jaydeepEKS1",
+        "account": "nextgen-app-eks",
         "cloudProvider": "kubernetes",
         "manifests": [
          {
           "apiVersion": "v1",
           "data": {
-           ".dockerconfigjson": "ewoJImF1dGhzIjogewoJCSJhNmQ0MzY4MjkzOTM4MTFlYTkwZDgwNjM2YjEyZWEwMy0xMjE4NTUxNDkuYXAtc291dGhlYXN0LTEuZWxiLmFtYXpvbmF3cy5jb206ODAiOiB7CgkJCSJhdXRoIjogIllXUnRhVzQ2Y0dGemMzZHZjbVE9IgoJCX0KCX0sCgkiSHR0cEhlYWRlcnMiOiB7CgkJIlVzZXItQWdlbnQiOiAiRG9ja2VyLUNsaWVudC8xOS4wMy41IChsaW51eCkiCgl9Cn0="
+           ".dockerconfigjson": "eyJhdXRocyI6eyJhZmU4ZjViNWE2ZjI5MTFlYTliN2EwMjExMDhlYWEwOS0xOTQ2MjcwMTk4LnVzLWVhc3QtMi5lbGIuYW1hem9uYXdzLmNvbTo4MDgyIjp7InVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6Ik93RyVPOFY3NFhQSiIsImF1dGgiOiJZV1J0YVc0NlQzZEhKVTg0VmpjMFdGQksifX19"
           },
           "kind": "Secret",
           "metadata": {
            "annotations": {
                 "strategy.spinnaker.io/versioned": "false"
               },
-           "name": "artifactorycred",
+           "name": "nexus",
            "namespace": "petclinic-${trigger[\"properties\"][\"branch_name\"]}"
           },
           "type": "kubernetes.io/dockerconfigjson"
@@ -75,9 +75,9 @@
         "type": "deployManifest"
      },
      {
-      "account": "my-eks-cluster-jaydeepEKS1",
+      "account": "nextgen-app-eks",
       "cloudProvider": "kubernetes",
-      "manifests": [
+      "manifests": [ 
        {
         "apiVersion": "v1",
         "kind": "Service",
@@ -119,7 +119,7 @@
       "type": "deployManifest"
      },
      {
-      "account": "my-eks-cluster-jaydeepEKS1",
+      "account": "nextgen-app-eks",
       "cloudProvider": "kubernetes",
       "expectedArtifacts": [],
       "manifests": [
@@ -142,13 +142,13 @@
           "spec": {
            "containers": [
             {
-             "image": "a6d436829393811ea90d80636b12ea03-121855149.ap-southeast-1.elb.amazonaws.com:80/docker-local/petclinic:${trigger[\"properties\"][\"version\"]}",
+             "image": "afe8f5b5a6f2911ea9b7a021108eaa09-1946270198.us-east-2.elb.amazonaws.com:8082/petclinic:${trigger[\"properties\"][\"version\"]}",
              "name": "petclinic"
             }
            ],
            "imagePullSecrets": [
             {
-             "name": "artifactorycred"
+             "name": "nexus"
             }
            ]
           }
@@ -179,8 +179,8 @@
     "triggers": [
      {
       "enabled": true,
-      "job": "JavaSpringBoot-Basic/job/version",
-      "master": "my-jenkins-master",
+      "job": "petclinic/job/master",
+      "master": "nextgen-jenkins-master",
       "propertyFile": "build_properties.yaml",
       "type": "jenkins"
      }

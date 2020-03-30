@@ -1,3 +1,4 @@
+# Tools used in this project
 ##### Application Programming Language - Java Spring Boot
 ##### DevOps Tools Installation Platform - AWS EKS
 ##### Application Deployment Platform - AWS EKS
@@ -8,7 +9,8 @@
 ##### Package Manager for Kubernetes - Helm
 ##### Artifact Repository Tool - Nexus, and instruction for Jfrog Artifactory as well
 
-### Administration VM AWS EC2 Ubuntu
+
+# Administration VM AWS EC2 Ubuntu
  - How to provision using console
    - Straight forward EC2 instance provisioning steps - **just make sure that**
      - provision in the same vpc in which kubernetes is provisioned and
@@ -51,35 +53,36 @@
   - run mount command https://docs.aws.amazon.com/efs/latest/ug/mounting-fs-mount-cmd-dns-name.html
 
 
-### Jenkins: Install on EKS using Helm
+# Jenkins: Install on EKS using Helm
  - Create jenkinsPersistentVolumeClaim.yaml
  - Create jenkinsStorageClass.yaml
  - Create jenkins namespace
  - Install using helm command
- `helm install ng-jenkins stable/jenkins --set namespaceOverride=jenkins,master.serviceType=LoadBalancer,master.slaveKubernetesNamespace=jenkins,master.resources.requests.cpu=500m,master.resources.requests.memory=1Gi,master.resources.limits.cpu=500m,master.resources.limits.memory=1Gi,persistence.existingClaim=jenkins-pvc,persistence.storageClass=jenkins-sc,master.adminPassword=admin`
+ ```
+ helm install ng-jenkins stable/jenkins --set namespaceOverride=jenkins,master.serviceType=LoadBalancer,master.slaveKubernetesNamespace=jenkins,master.resources.requests.cpu=500m,master.resources.requests.memory=1Gi,master.resources.limits.cpu=500m,master.resources.limits.memory=1Gi,persistence.existingClaim=jenkins-pvc,persistence.storageClass=jenkins-sc,master.adminPassword=admin
+ ```
 
 
-### Spinnaker: Install on EKS
- - Straight forward steps from https://www.spinnaker.io/setup/install/
- - Install Halyard
-   - provide the username by which want to run halyard/spinnaker service
- - Choose Cloud Provider > Kubernetes(Manifest Based)
-   - Optional: Create a Kubernetes Service Account
-   - Optional: Configure Kubernetes Roles (RBAC)
-   - Adding an account
- - Choose an Environment > Distributed Installation
-   - **Make sure to run last optional command as well with 600s value**
- - Choose a Storage Service
-   - S3
-     - **Make sure to add `--bucket s3BucketName` in the command else random name bucket will created**
- - Deploy and Connect
+# Spinnaker 
+- ## Install on EKS
+  - Straight forward steps from https://www.spinnaker.io/setup/install/
+  - Install Halyard
+    - provide the username by which want to run halyard/spinnaker service
+  - Choose Cloud Provider > Kubernetes(Manifest Based)
+    - Optional: Create a Kubernetes Service Account
+    - Optional: Configure Kubernetes Roles (RBAC)
+    - Adding an account
+  - Choose an Environment > Distributed Installation
+    - **Make sure to run last optional command as well with 600s value**
+  - Choose a Storage Service
+    - S3
+      - **Make sure to add `--bucket s3BucketName` in the command else random name bucket will created**
+  - Deploy and Connect
+- ## Configure to Expose Publicly
+  - Straight forward steps from https://docs.armory.io/spinnaker/exposing_spinnaker/
 
 
-### Spinnaker: Configure to Expose Publicly
- - Straight forward steps from https://docs.armory.io/spinnaker/exposing_spinnaker/
-
-
-### Nexus: Installation on EKS
+# Nexus: Installation on EKS
 - ## Using Helm
   - I've tried many ways of installing nexus using Helm on kubernetes, but I'm failing, there are multiple reasons for that
     - Through helm it needs dedicated domain or public IP routed on that nexus service to access nexus UI
@@ -95,7 +98,8 @@
   - Create nexusDeployment.yaml
   - Create nexusService.yaml
 
-### Nexus: Configuration
+
+# Nexus: Configuration
 - At first time login, password would be stored in - nexus-data/admin.password
 - ## To create **docker type** repository
   - Create blob-store for all required repositories - Settings button on top left > Blob stores > create blob store
@@ -110,7 +114,47 @@
 		- Deployment policy: Allow Redeploy for Snapshots type of repo and Disable redeploy for Release type of repo
 	  - Cleanup policy - select if created one
   - `settings > security > realms > move "docker bearer token realm" to active`, else while pushing image to repo. it will throw error `Error response from daemon: login attempt to http://10.236.2.5:8085/v2/ failed with status: 401 Unauthorized`
+  - ### Test docker registry
+    - In Administraiton VM, tag the image name as **nexusURL:dockerPort/dockerReg/imageName:tag**
+    - In `/etc/docker/daemon.json` file add `"insecure-registries":["http://nexusURL:dockerPort"]`
+    - Restart docker service
+    - `sudo docker login nexusURL:dockerPort`
+    - `sudo docker push nexusURL:dockerPort/dockerReg/imageName:tag`
 
+
+# AWS Custom AMI: Create custom AMI for docker image pull from private registry and EFS mount
+- After Nexus or Jfrog Artifactory - docker registry and EFS created
+- Find out Security Group of worker nodes and add SSH inbound rule for all IPs or SG of Administation VM
+- SSH into one of worker nodes, for this below configurations needed in Administration VM
+  - To SSH EKS worker nodes, we need EKS key pair .pem file. 
+    - For this, first we'd have created .ppk file while proviosioning EKS using Terraform
+    - From this PPK, convert to .pem format - here's the link of how to - https://aws.amazon.com/premiumsupport/knowledge-center/convert-pem-file-into-ppk/
+    - Put this key in this VM
+    - Change permission to 400
+    - SSH using command `ssh -i key.pem ec2-user@pvtIp`
+- After SSH, in worker nodes, In `/etc/docker/daemon.json` file, add `"insecure-registries":["http://jfrogArtifactoryURL:80"]` for JFrog Artifactory and `"insecure-registries":["http://nexusURL:dockerPort"]` for Nexus as below
+```
+{
+  "bridge": "none",
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "10"
+  },
+  "live-restore": true,
+  "max-concurrent-downloads": 10,
+  "insecure-registries":["http://jfrogArtifactoryURL:80", "http://nexusURL:dockerPort"]
+}
+```
+- Mount EFS permanently as per https://docs.aws.amazon.com/efs/latest/ug/mount-fs-auto-mount-onreboot.html
+- AWS > EC2 > select this worker node > actions > create image
+- Change launch template configuration
+  - EC2 > Launch templates > select the one which is used in Auto Scaler configurations of EKS > actions > modify template > select AMI new one created above from My AMI section > Create template version
+- Select default version
+  - EC2 > Launch templates > select the one which is used in Auto Scaler configurations of EKS > actions > set default version > select latest created > set default version
+- Change version in Auto scaling group
+  - EC2 > Auto scaling group > select the one which is used in Auto Scaler configurations of EKS > actions > edit > change launch template version > select latest > save
+- Delete all EC2 instances created as part of EKS worker nodes and now let auto scaler create new nodes as per custom AMI
 
 
 ### Jenkins: Configurations
@@ -123,7 +167,25 @@
   ```diff
   - verify this and change accordingly
   ```
+  - Credentials: Add new > global > kind: kubernetes service account > add > Test connection 
   - rest all parameters as it is and save
+- Plugins
+  - ansicolor
+
+
+### Jenkins: Create Multibranch CI pipeline
+- Take username and token of repository from Azure DevOps
+  - Azure DevOps > Repository > clone > Generate Git Credentials > keep copied this username and token, will be required in next step
+- Create credentials to authenticate to git repository
+  - Jenkins > Credentials > System > Global credentials > Add credentials
+    - Scope: Global
+    - Username: Username of the git repository
+    - Password: Token of the repository
+    - ID: ID(name) to be used to select in job configuration
+    - Description: description
+ - Jenkins > new job > multibranch type > git > url, credentials > save
+ - This job will automatically fetch all branch names from git and create separate jobs for each branch wise
+
 
 ### Jfrog Artifactory: Install on EKS
  - Create S3 bucket for storage purpose ***<< Confirm this functionality***
@@ -181,16 +243,9 @@ awsS3V3:
 - **Make sure to increase --liveness-probe-initial-delay-seconds to 600s in the command**
   - `hal config deploy edit --liveness-probe-enabled true --liveness-probe-initial-delay-seconds 600`
 
-### Jenkins: Create Multibranch CI pipeline
- - Create credentials to authenticate to git repository
-   - Jenkins > Credentials > System > Global credentials > Add credentials
-     - Scope: Global
-     - Username: Username of the git repository
-     - Password: Password of git repository
-     - ID: ID(name) to be used to select in job configuration
-     - Description: description
- - Jenkins > new job > multibranch type > git > url, credentials > save
- - This job will automatically fetch all branch names from git and create separate jobs for each branch wise
+
+# Spinnaker configuration
+- Create kubectl create secret and change in spinnaker template.json file 
 
 ### Spinnaker: Create CD pipeline
 ## (1) First Implementation - Manual
@@ -274,32 +329,7 @@ sh "spin pipeline save --file template.json"
     - jenkins base url, username, user api token - here provide user's token
     - Test and finish
 
-## AWS Custom AMI: Create custom AMI for docker image pull from private registry and EFS mount
-- After Jfrog Artifactory and EFS created
-- SSH into one of worker nodes
-- in `/etc/docker/daemon.json` file add `"insecure-registries":["http://jfrogArtifactoryURL:80"]` as below
-```
-{
-  "bridge": "none",
-  "log-driver": "json-file",
-  "log-opts": {
-    "max-size": "10m",
-    "max-file": "10"
-  },
-  "live-restore": true,
-  "max-concurrent-downloads": 10,
-  "insecure-registries":["http://jfrogArtifactoryURL:80"]
-}
-```
-- Mount EFS permanently as per https://docs.aws.amazon.com/efs/latest/ug/mount-fs-auto-mount-onreboot.html
-- AWS > EC2 > select this worker node > actions > create image
-- Change launch template configuration
-  - EC2 > Launch templates > select the one which is used in Auto Scaler configurations of EKS > actions > modify template > select AMI new one created above from My AMI section > Create template version
-- Select default version
-  - EC2 > Launch templates > select the one which is used in Auto Scaler configurations of EKS > actions > set default version > select latest created > set default version
-- Change version in Auto scaling group
-  - EC2 > Auto scaling group > select the one which is used in Auto Scaler configurations of EKS > actions > edit > change launch template version > select latest > save
-- Delete all EC2 instances created as part of EKS worker nodes and now let auto scaler create new nodes as per custom AMI
+
 
 ## CICD covered features and Changes to be done
 # Versioning Part 1
