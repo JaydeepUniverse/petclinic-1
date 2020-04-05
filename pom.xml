@@ -28,8 +28,7 @@
 
     <jacoco.version>0.8.2</jacoco.version>
     <version.number>${project.version}</version.number>
-    <docker.repository.name>a6d436829393811ea90d80636b12ea03-121855149.ap-southeast-1.elb.amazonaws.com:80/docker-local/${project.artifactId}</docker.repository.name>
-
+    <docker.repository.name>nexusURL:8082/dockerRegistry/${project.artifactId}</docker.repository.name>
 
   </properties>
 
@@ -293,14 +292,14 @@
 
   <distributionManagement>
     <snapshotRepository>
-      <id>jfrogArtifactory</id>
-      <name>jfrogArtifactory-snapshots</name>
-      <url>http://a6d436829393811ea90d80636b12ea03-121855149.ap-southeast-1.elb.amazonaws.com:80/artifactory/jfrogArtifactory-snapshots</url>
+      <id>petclinic-snapshots</id>
+      <name>petclinic-snapshots</name>
+      <url>http://nexusURL:8081/repository/petclinic-snapshot/</url>
     </snapshotRepository>
     <repository>
-      <id>jfrogArtifactory</id>
-      <name>jfrogArtifactory-releases</name>
-      <url>http://a6d436829393811ea90d80636b12ea03-121855149.ap-southeast-1.elb.amazonaws.com:80/artifactory/jfrogArtifactory-releases/</url>
+      <id>petclinic-releases</id>
+      <name>petclinic-releases</name>
+      <url>http://nexusURL:8081/repository/petclinic-releases/</url>
     </repository>
   </distributionManagement>
 

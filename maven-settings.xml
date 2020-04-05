@@ -7,16 +7,22 @@
 
     <servers>
         <server>
-		            <id>a6d436829393811ea90d80636b12ea03-121855149.ap-southeast-1.elb.amazonaws.com:80</id>
-
+            <id>a2a2a122ab779476abc6e47200efa278-1386907835.us-east-2.elb.amazonaws.com:8082</id>
             <username>admin</username>
-            <password>AP52U2DDNJ7ZtbF96AkxepV7Dqn</password>
+            <password>xxxx</password>
         </server>
-                <server>
-            <id>jfrogArtifactory</id>
+        
+        <server>
+            <id>petclinic-snapshot</id>
             <username>admin</username>
-            <password>AP52U2DDNJ7ZtbF96AkxepV7Dqn</password>
+            <password>xxxx</password>
+        </server>
+    
+        <server>
+            <id>petclinic-releases</id>
+            <username>admin</username>
+            <password>xxxx</password>
         </server>
     </servers>
-
+    
 </settings>

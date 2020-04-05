@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - image: >-
-            jfrogArtifactoryURL:80/docker-local/spring-petclinic:${trigger["properties"]["BUILD_NUMBER"]}
+            nexusURL:8082/dockerRegistry/spring-petclinic:${trigger["properties"]["BUILD_NUMBER"]}
           name: petclinic
       imagePullSecrets:
-        - name: artifactoryCred
+        - name: nexus-docker-registry

@@ -39,7 +39,7 @@ version: "${version}"
         }
         stage("Build"){
             steps{
-                    sh "mvn deploy docker:push -s maven-settings.xml -Dmaven.test.skip=true -DBUILD_NUMBER=${BUILD_NUMBER} -Dmaven.test.skip=true -Dstyle.color=always -B"
+                    sh "mvn deploy docker:push -s maven-settings.xml -Dmaven.test.skip=true -DBUILD_NUMBER=${BUILD_NUMBER} -DBRANCH_NAME=${env.BRANCH_NAME} -Dmaven.test.skip=true -Dstyle.color=always -B"
                 }
             }
        stage("Test"){

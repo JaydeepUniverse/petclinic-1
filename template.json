@@ -1,188 +1,188 @@
 {
-    "application": "petclinic",
-    "index": 2,
-    "keepWaitingPipelines": false,
-    "lastModifiedBy": "anonymous",
-    "limitConcurrent": true,
-    "name": "version",
-    "stages": [
-     {
-      "account": "nextgen-app-eks",
-      "cloudProvider": "kubernetes",
-      "manifests": [
-       {
-        "apiVersion": "v1",
-        "kind": "Namespace",
-        "metadata": {
-         "name": "petclinic-${trigger[\"properties\"][\"branch_name\"]}"
-        }
+   "application": "petclinic",
+   "index": 2,
+   "keepWaitingPipelines": false,
+   "lastModifiedBy": "anonymous",
+   "limitConcurrent": true,
+   "name": "branchName",
+   "stages": [
+    {
+     "account": "jaydeep-nextgen-app-dev-eks-cluster",
+     "cloudProvider": "kubernetes",
+     "manifests": [
+      {
+       "apiVersion": "v1",
+       "kind": "Namespace",
+       "metadata": {
+        "name": "petclinic-${trigger[\"properties\"][\"branch_name\"]}"
        }
-      ],
-      "moniker": {
-       "app": "petclinic"
-      },
-      "name": "namespace",
-      "refId": "1",
-      "requisiteStageRefIds": [],
-      "skipExpressionEvaluation": false,
-      "source": "text",
-      "trafficManagement": {
-       "enabled": false,
-       "options": {
-        "enableTraffic": false,
-        "services": []
-       }
-      },
-      "type": "deployManifest"
+      }
+     ],
+     "moniker": {
+      "app": "petclinic"
      },
-     {
-        "account": "nextgen-app-eks",
-        "cloudProvider": "kubernetes",
-        "manifests": [
+     "name": "namespace",
+     "refId": "1",
+     "requisiteStageRefIds": [],
+     "skipExpressionEvaluation": false,
+     "source": "text",
+     "trafficManagement": {
+      "enabled": false,
+      "options": {
+       "enableTraffic": false,
+       "services": []
+      }
+     },
+     "type": "deployManifest"
+    },
+    {
+       "account": "jaydeep-nextgen-app-dev-eks-cluster",
+       "cloudProvider": "kubernetes",
+       "manifests": [
+        {
+         "apiVersion": "v1",
+         "data": {
+          ".dockerconfigjson": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+         },
+         "kind": "Secret",
+         "metadata": {
+          "annotations": {
+               "strategy.spinnaker.io/versioned": "false"
+             },
+          "name": "nexus",
+          "namespace": "petclinic-${trigger[\"properties\"][\"branch_name\"]}"
+         },
+         "type": "kubernetes.io/dockerconfigjson"
+        }
+       ],
+       "moniker": {
+        "app": "petclinic"
+       },
+       "name": "secret",
+       "refId": "2",
+       "requisiteStageRefIds": [
+        "1"
+       ],
+       "skipExpressionEvaluation": false,
+       "source": "text",
+       "trafficManagement": {
+        "enabled": false,
+        "options": {
+         "enableTraffic": false,
+         "services": []
+        }
+       },
+       "type": "deployManifest"
+    },
+    {
+     "account": "jaydeep-nextgen-app-dev-eks-cluster",
+     "cloudProvider": "kubernetes",
+     "manifests": [ 
+      {
+       "apiVersion": "v1",
+       "kind": "Service",
+       "metadata": {
+        "name": "petclinic",
+        "namespace": "petclinic-${trigger[\"properties\"][\"branch_name\"]}"
+       },
+       "spec": {
+        "ports": [
          {
-          "apiVersion": "v1",
-          "data": {
-           ".dockerconfigjson": "eyJhdXRocyI6eyJhZmU4ZjViNWE2ZjI5MTFlYTliN2EwMjExMDhlYWEwOS0xOTQ2MjcwMTk4LnVzLWVhc3QtMi5lbGIuYW1hem9uYXdzLmNvbTo4MDgyIjp7InVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6Ik93RyVPOFY3NFhQSiIsImF1dGgiOiJZV1J0YVc0NlQzZEhKVTg0VmpjMFdGQksifX19"
-          },
-          "kind": "Secret",
-          "metadata": {
-           "annotations": {
-                "strategy.spinnaker.io/versioned": "false"
-              },
-           "name": "nexus",
-           "namespace": "petclinic-${trigger[\"properties\"][\"branch_name\"]}"
-          },
-          "type": "kubernetes.io/dockerconfigjson"
+          "port": 80,
+          "targetPort": 8080
          }
         ],
-        "moniker": {
+        "selector": {
          "app": "petclinic"
         },
-        "name": "secret",
-        "refId": "2",
-        "requisiteStageRefIds": [
-         "1"
-        ],
-        "skipExpressionEvaluation": false,
-        "source": "text",
-        "trafficManagement": {
-         "enabled": false,
-         "options": {
-          "enableTraffic": false,
-          "services": []
-         }
-        },
-        "type": "deployManifest"
-     },
-     {
-      "account": "nextgen-app-eks",
-      "cloudProvider": "kubernetes",
-      "manifests": [ 
-       {
-        "apiVersion": "v1",
-        "kind": "Service",
-        "metadata": {
-         "name": "petclinic",
-         "namespace": "petclinic-${trigger[\"properties\"][\"branch_name\"]}"
-        },
-        "spec": {
-         "ports": [
-          {
-           "port": 80,
-           "targetPort": 8080
-          }
-         ],
-         "selector": {
-          "app": "petclinic"
-         },
-         "type": "LoadBalancer"
-        }
+        "type": "LoadBalancer"
        }
-      ],
-      "moniker": {
-       "app": "petclinic"
-      },
-      "name": "service",
-      "refId": "3",
-      "requisiteStageRefIds": [
-       "2"
-      ],
-      "skipExpressionEvaluation": false,
-      "source": "text",
-      "trafficManagement": {
-       "enabled": false,
-       "options": {
-        "enableTraffic": false,
-        "services": []
-       }
-      },
-      "type": "deployManifest"
+      }
+     ],
+     "moniker": {
+      "app": "petclinic"
      },
-     {
-      "account": "nextgen-app-eks",
-      "cloudProvider": "kubernetes",
-      "expectedArtifacts": [],
-      "manifests": [
-       {
-        "apiVersion": "apps/v1beta1",
-        "kind": "Deployment",
-        "metadata": {
-         "name": "petclinic",
-         "namespace": "petclinic-${trigger[\"properties\"][\"branch_name\"]}"
-        },
-        "spec": {
-         "replicas": 1,
-         "template": {
-          "metadata": {
-           "labels": {
-            "app": "petclinic"
-           },
-           "name": "petclinic"
+     "name": "service",
+     "refId": "3",
+     "requisiteStageRefIds": [
+      "2"
+     ],
+     "skipExpressionEvaluation": false,
+     "source": "text",
+     "trafficManagement": {
+      "enabled": false,
+      "options": {
+       "enableTraffic": false,
+       "services": []
+      }
+     },
+     "type": "deployManifest"
+    },
+    {
+     "account": "jaydeep-nextgen-app-dev-eks-cluster",
+     "cloudProvider": "kubernetes",
+     "expectedArtifacts": [],
+     "manifests": [
+      {
+       "apiVersion": "apps/v1beta1",
+       "kind": "Deployment",
+       "metadata": {
+        "name": "petclinic",
+        "namespace": "petclinic-${trigger[\"properties\"][\"branch_name\"]}"
+       },
+       "spec": {
+        "replicas": 1,
+        "template": {
+         "metadata": {
+          "labels": {
+           "app": "petclinic"
           },
-          "spec": {
-           "containers": [
-            {
-             "image": "afe8f5b5a6f2911ea9b7a021108eaa09-1946270198.us-east-2.elb.amazonaws.com:8082/petclinic:${trigger[\"properties\"][\"version\"]}",
-             "name": "petclinic"
-            }
-           ],
-           "imagePullSecrets": [
-            {
-             "name": "nexus"
-            }
-           ]
-          }
+          "name": "petclinic"
+         },
+         "spec": {
+          "containers": [
+           {
+            "image": "nexusURL:8082/dockerRegistry/petclinic:${trigger[\"properties\"][\"version\"]}",
+            "name": "petclinic"
+           }
+          ],
+          "imagePullSecrets": [
+           {
+            "name": "nexus"
+           }
+          ]
          }
         }
        }
-      ],
-      "moniker": {
-       "app": "petclinic"
-      },
-      "name": "deployment",
-      "refId": "4",
-      "requisiteStageRefIds": [
-       "3"
-      ],
-      "skipExpressionEvaluation": false,
-      "source": "text",
-      "trafficManagement": {
-       "enabled": false,
-       "options": {
-        "enableTraffic": false,
-        "services": []
-       }
-      },
-      "type": "deployManifest"
-     }
-    ],
-    "triggers": [
-     {
-      "enabled": true,
-      "job": "petclinic/job/version",
-      "master": "nextgen-jenkins-master",
-      "propertyFile": "build_properties.yaml",
-      "type": "jenkins"
-     }
-    ]
+      }
+     ],
+     "moniker": {
+      "app": "petclinic"
+     },
+     "name": "deployment",
+     "refId": "4",
+     "requisiteStageRefIds": [
+      "3"
+     ],
+     "skipExpressionEvaluation": false,
+     "source": "text",
+     "trafficManagement": {
+      "enabled": false,
+      "options": {
+       "enableTraffic": false,
+       "services": []
+      }
+     },
+     "type": "deployManifest"
+    }
+   ],
+   "triggers": [
+    {
+     "enabled": true,
+     "job": "petclinic/job/branchName",
+     "master": "jaydeepNextGenJenkins",
+     "propertyFile": "build_properties.yaml",
+     "type": "jenkins"
+    }
+   ]
 }   
